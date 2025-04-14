@@ -1,0 +1,43 @@
+services:
+  catspider:
+    image: cat-spider
+
+  pg:
+    image: "postgres:17"
+#    container_name: pg
+    restart: unless-stopped
+    #env_file:
+    #  - "vars.env"
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_DB: local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      # external_directory:internal_directory
+      # volume for postgresql data
+      - "${PG_DATA:-/opt/catsearch/pg/pgdata}:/var/lib/postgresql/data/pgdata"
+      # volume for .dump files
+      #- "${PG_IMPORT_DATA:-/opt/catsearch/pg/import_data}:/opt/catsearch/import_data"
+      - "${PG_IMPORT_DATA:-./import_data}:/opt/catsearch/import_data"
+    ports:
+      # "external_port:internal_port"
+      - "5432:5432"
+  
+  mongo:
+    image: "mongo:8.0"
+#    container_name: mongo
+    restart: unless-stopped
+    #env_file:
+    #  - "vars.env"
+    environment:
+      # MONGO_INITDB_ROOT_USERNAME: root
+      # MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: raw
+    volumes:
+      # external_directory:internal_directory
+      # volume for mongo data
+      - "/opt/catsearch/mongo/data:/data/db"
+    ports:
+      # "external_port:internal_port"
+      - "27017:27017"
