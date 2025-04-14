@@ -75,3 +75,4 @@ docker compose up -d
 
 # Архитектура
 
+![Architecture](doc/CatSearch System design.jpg)
