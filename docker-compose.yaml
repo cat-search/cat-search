@@ -1,13 +1,17 @@
 services:
-  catbackend:
+  backend:
     image: cat-backend
     restart: unless-stopped
     ports:
       # HTTP API
-      - 80:8000
-  catspider:
+      - 80:80
+    env_file:
+      - .env
+  spider:
     image: cat-spider
     restart: no
+    env_file:
+      - .env
   weaviate:
     command:
     - --host
