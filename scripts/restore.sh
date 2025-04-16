@@ -2,26 +2,27 @@
 set -e
 
 POSTGRES_USER=postgres
-$POSTGRES_DB=postgres
+POSTGRES_DB=catsearch
+DATA_DIR=/docker-entrypoint-initdb.d/backups
 
-echo "Starting pg_restore"
-
-pg_restore --create \
-  -U "$POSTGRES_USER" \
-  -dbname "$POSTGRES_DB" \
-  --no-owner --format c --no-privileges \
-  /opt/catsearch/import_data/cms.dump
+echo "Starting pg_restore ..."
 
 pg_restore --create \
   -U "$POSTGRES_USER" \
-  -dbname "$POSTGRES_DB" \
+  --dbname "$POSTGRES_DB" \
   --no-owner --format c --no-privileges \
-  /opt/catsearch/import_data/filestorage.dump
+  "$DATA_DIR/cms.dump"
 
 pg_restore --create \
   -U "$POSTGRES_USER" \
-  -dbname "$POSTGRES_DB" \
+  --dbname "$POSTGRES_DB" \
   --no-owner --format c --no-privileges \
-  /opt/catsearch/import_data/lists.dump
+  "$DATA_DIR/filestorage.dump"
+
+pg_restore --create \
+  -U "$POSTGRES_USER" \
+  --dbname "$POSTGRES_DB" \
+  --no-owner --format c --no-privileges \
+  "$DATA_DIR/lists.dump"
 
 echo "Restoration completed successfully"

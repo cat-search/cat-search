@@ -10,27 +10,22 @@ services:
   spider:
     image: cat-spider
     restart: no
+    depends_on:
+      - pg
     env_file:
       - .env
   weaviate:
-    command:
-    - --host
-    - 0.0.0.0
-    - --port
-    - '8080'
-    - --scheme
-    - http
+    command: --host 0.0.0.0 --port 8080 --scheme http
     image: cr.weaviate.io/semitechnologies/weaviate:1.30.0
+    restart: unless-stopped
     ports:
       # HTTP API
       - 8080:8080
       # gRPC
       - 50051:50051
-      # Error????
-      # - 11434:11434
     volumes:
-    - /opt/catsearch/weaviate:/var/lib/weaviate
-    restart: on-failure:0
+      - /opt/catsearch/weaviate:/var/lib/weaviate
+#    restart: on-failure:0
     environment:
       # Image Vectorization
       IMAGE_INFERENCE_API: 'http://i2v-neural:8080'
@@ -56,10 +51,12 @@ services:
 
   i2v-neural:
     image: cr.weaviate.io/semitechnologies/img2vec-keras:resnet50
+    restart: unless-stopped
     environment:
       ENABLE_CUDA: '0'
   ollama:
     image: ollama/ollama
+    restart: unless-stopped
     ports:
       - '11434:11434'
     volumes:
@@ -73,7 +70,7 @@ services:
     #  - "vars.env"
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_DB: local
+      POSTGRES_DB: catsearch
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
@@ -82,7 +79,9 @@ services:
       - "${PG_DATA:-/opt/catsearch/pg/pgdata}:/var/lib/postgresql/data/pgdata"
       # volume for .dump files
       #- "${PG_IMPORT_DATA:-/opt/catsearch/pg/import_data}:/opt/catsearch/import_data"
-      - "${PG_IMPORT_DATA:-./import_data}:/opt/catsearch/import_data"
+#      - "${PG_IMPORT_DATA:-./import_data}:/opt/catsearch/import_data"
+      - ./backups:/docker-entrypoint-initdb.d/backups
+      - ./scripts:/docker-entrypoint-initdb.d
     ports:
       # "external_port:internal_port"
       - "5432:5432"
