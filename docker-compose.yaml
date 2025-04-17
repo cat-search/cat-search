@@ -73,8 +73,9 @@ services:
       - '11434:11434'
     volumes:
       - /opt/catsearch/ollama:/root/.ollama
-      # entrypoint.sh will download models
+      # entrypoint.sh will pull models
       - ./ollama/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
     depends_on:
