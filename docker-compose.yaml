@@ -3,22 +3,32 @@ services:
     image: cat-backend
     restart: unless-stopped
     ports:
+      # external_port:internal_port
       # HTTP API
       - 80:80
     env_file:
       - .env
+    depends_on:
+      - pg
   spider:
     image: cat-spider
     restart: no
     depends_on:
       - pg
+      - weaviate
+      - ollama
     env_file:
       - .env
+    volumes:
+      - /opt/catsearch/download:/opt/catsearch/download
   weaviate:
     command: --host 0.0.0.0 --port 8080 --scheme http
     image: cr.weaviate.io/semitechnologies/weaviate:1.30.0
     restart: unless-stopped
+    depends_on:
+      - ollama
     ports:
+      # external_port:internal_port
       # HTTP API
       - 8080:8080
       # gRPC
@@ -54,14 +64,29 @@ services:
     restart: unless-stopped
     environment:
       ENABLE_CUDA: '0'
+
   ollama:
     image: ollama/ollama
     restart: unless-stopped
     ports:
+      # external_port:internal_port
       - '11434:11434'
     volumes:
       - /opt/catsearch/ollama:/root/.ollama
-
+      # entrypoint.sh will download models
+      - ./ollama/entrypoint.sh:/entrypoint.sh
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    depends_on:
+      - ollama
+    ports:
+      # external_port:internal_port
+      - "81:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - /opt/catsearch/ollama-webui:/app/backend/data
+    restart: unless-stopped
   pg:
     image: "postgres:17"
 #    container_name: pg
@@ -80,8 +105,8 @@ services:
       # volume for .dump files
       #- "${PG_IMPORT_DATA:-/opt/catsearch/pg/import_data}:/opt/catsearch/import_data"
 #      - "${PG_IMPORT_DATA:-./import_data}:/opt/catsearch/import_data"
-      - ./backups:/docker-entrypoint-initdb.d/backups
-      - ./scripts:/docker-entrypoint-initdb.d
+      - ./pg/backups:/docker-entrypoint-initdb.d/backups
+      - ./pg/scripts:/docker-entrypoint-initdb.d
     ports:
       # "external_port:internal_port"
       - "5432:5432"
