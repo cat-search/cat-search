@@ -5,7 +5,7 @@ services:
     ports:
       # external_port:internal_port
       # HTTP API
-      - 80:80
+      - "80:8000"
     env_file:
       - .env
     depends_on:
@@ -30,9 +30,9 @@ services:
     ports:
       # external_port:internal_port
       # HTTP API
-      - 8080:8080
+      - "8080:8080"
       # gRPC
-      - 50051:50051
+      - "50051:50051"
     volumes:
       - /opt/catsearch/weaviate:/var/lib/weaviate
 #    restart: on-failure:0
@@ -70,10 +70,10 @@ services:
     restart: unless-stopped
     ports:
       # external_port:internal_port
-      - '11434:11434'
+      - "11434:11434"
     volumes:
       - /opt/catsearch/ollama:/root/.ollama
-      # entrypoint.sh will pull models
+      # Script entrypoint.sh will pull the models
       - ./ollama/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
   open-webui:
