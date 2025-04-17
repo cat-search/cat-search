@@ -5,22 +5,28 @@ services:
     ports:
       # external_port:internal_port
       # HTTP API
-      - 80:80
+      - "80:8000"
     env_file:
+      - app.env
       - .env
+    # Start after these services
     depends_on:
       - pg
+
   spider:
     image: cat-spider
     restart: no
+    # Start after these services
     depends_on:
       - pg
       - weaviate
       - ollama
     env_file:
+      - app.env
       - .env
     volumes:
-      - /opt/catsearch/download:/opt/catsearch/download
+      - "${DEPLOY_DIR:-.}/catsearch/download:/opt/catsearch/download"
+
   weaviate:
     command: --host 0.0.0.0 --port 8080 --scheme http
     image: cr.weaviate.io/semitechnologies/weaviate:1.30.0
@@ -30,12 +36,13 @@ services:
     ports:
       # external_port:internal_port
       # HTTP API
-      - 8080:8080
+      - "8080:8080"
       # gRPC
-      - 50051:50051
+      - "50051:50051"
     volumes:
-      - /opt/catsearch/weaviate:/var/lib/weaviate
-#    restart: on-failure:0
+      - "${DEPLOY_DIR:-.}/catsearch/weaviate:/var/lib/weaviate"
+    env_file:
+      - .env
     environment:
       # Image Vectorization
       IMAGE_INFERENCE_API: 'http://i2v-neural:8080'
@@ -55,7 +62,7 @@ services:
       # Enables API key authentication.
       AUTHENTICATION_APIKEY_ENABLED: 'true'
       # List one or more keys in plaintext separated by commas. Each key corresponds to a specific user identity below.
-      AUTHENTICATION_APIKEY_ALLOWED_KEYS: 'Hack_the_VK'
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: 'Search_the_VK'
       # List one or more user identities, separated by commas. Each identity corresponds to a specific key above.
       AUTHENTICATION_APIKEY_USERS: 'admin'
 
@@ -70,12 +77,15 @@ services:
     restart: unless-stopped
     ports:
       # external_port:internal_port
-      - '11434:11434'
+      - "11434:11434"
+    env_file:
+      - .env
     volumes:
-      - /opt/catsearch/ollama:/root/.ollama
-      # entrypoint.sh will pull models
+      - "${DEPLOY_DIR:-.}/catsearch/ollama:/root/.ollama"
+      # Script entrypoint.sh will pull the models
       - ./ollama/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
+
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
     depends_on:
@@ -83,17 +93,19 @@ services:
     ports:
       # external_port:internal_port
       - "81:8000"
+    env_file:
+      - .env
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
     volumes:
-      - /opt/catsearch/ollama-webui:/app/backend/data
+      - "${DEPLOY_DIR:-.}/catsearch/ollama-webui:/app/backend/data"
     restart: unless-stopped
+
   pg:
     image: "postgres:17"
-#    container_name: pg
     restart: unless-stopped
-    #env_file:
-    #  - "vars.env"
+    env_file:
+      - .env
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_DB: catsearch
@@ -102,30 +114,25 @@ services:
     volumes:
       # external_directory:internal_directory
       # volume for postgresql data
-      - "${PG_DATA:-/opt/catsearch/pg/pgdata}:/var/lib/postgresql/data/pgdata"
+      - "${DEPLOY_DIR:-.}/catsearch/pg/pgdata:/var/lib/postgresql/data/pgdata"
       # volume for .dump files
-      #- "${PG_IMPORT_DATA:-/opt/catsearch/pg/import_data}:/opt/catsearch/import_data"
-#      - "${PG_IMPORT_DATA:-./import_data}:/opt/catsearch/import_data"
       - ./pg/backups:/docker-entrypoint-initdb.d/backups
       - ./pg/scripts:/docker-entrypoint-initdb.d
     ports:
       # "external_port:internal_port"
       - "5432:5432"
   
-  mongo:
-    image: "mongo:8.0"
-#    container_name: mongo
-    restart: unless-stopped
-    #env_file:
-    #  - "vars.env"
-    environment:
-      # MONGO_INITDB_ROOT_USERNAME: root
-      # MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: raw
-    volumes:
-      # external_directory:internal_directory
-      # volume for mongo data
-      - "/opt/catsearch/mongo/data:/data/db"
-    ports:
-      # "external_port:internal_port"
-      - "27017:27017"
+#  mongo:
+#    image: "mongo:8.0"
+#    restart: unless-stopped
+#    #env_file:
+#    #  - "vars.env"
+#    environment:
+#      MONGO_INITDB_DATABASE: raw
+#    volumes:
+#      # external_directory:internal_directory
+#      # volume for mongo data
+#      - "/opt/catsearch/mongo/data:/data/db"
+#    ports:
+#      # "external_port:internal_port"
+#      - "27017:27017"
