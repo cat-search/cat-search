@@ -110,21 +110,14 @@ services:
       # "external_port:internal_port"
       - "5432:5432"
 
-#  open-webui:
-#    image: ghcr.io/open-webui/open-webui:ollama
-#    depends_on:
-#      - ollama
-#    ports:
-#      # external_port:internal_port
-#      - "3000:8080"
-#    env_file:
-#      - .env
-#    environment:
-#      - 'OLLAMA_BASE_URL=http://ollama:11434'
-#      - 'WEBUI_SECRET_KEY='
-#    volumes:
-#      - "${DEPLOY_DIR:-.}/catsearch/ollama-webui:/app/backend/data"
-#    restart: unless-stopped
+  tg-bot:
+    image: tg-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+      - app.env
+    depends_on:
+      - backend
 
 #  mongo:
 #    image: "mongo:8.0"
@@ -140,10 +133,3 @@ services:
 #    ports:
 #      # "external_port:internal_port"
 #      - "27017:27017"
-
-#  i2v-neural:
-#    image: cr.weaviate.io/semitechnologies/img2vec-keras:resnet50
-#    restart: unless-stopped
-#    environment:
-#      ENABLE_CUDA: '0'
-
