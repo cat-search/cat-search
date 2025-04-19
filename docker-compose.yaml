@@ -123,6 +123,15 @@ services:
       # "external_port:internal_port"
       - "5432:5432"
   
+  tg-bot:
+    image: tg-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+      - app.env
+    depends_on:
+      - backend
+  
 #  mongo:
 #    image: "mongo:8.0"
 #    restart: unless-stopped
