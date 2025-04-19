@@ -80,6 +80,14 @@ services:
       # Script entrypoint.sh will pull the models
       - ./ollama/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    # For NVIDIA GPU uncomment settings below
+    #deploy:
+    #  resources:
+    #    reservations:
+    #      devices:
+    #        - driver: nvidia
+    #          count: 1
+    #          capabilities: [gpu]
 
   pg:
     image: "postgres:17"
