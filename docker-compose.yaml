@@ -108,7 +108,7 @@ services:
       - ./pg/scripts:/docker-entrypoint-initdb.d
     ports:
       # "external_port:internal_port"
-      - "65432:5432"
+      - "5432:5432"
 
 #  open-webui:
 #    image: ghcr.io/open-webui/open-webui:ollama
