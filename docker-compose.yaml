@@ -56,7 +56,8 @@ services:
       #   text2vec-ollama:    for text embeddings using the Ollama LLM backend.
       #   img2vec-neural:     for image embeddings.
       #   generative-ollama:  for generative tasks (e.g., summarization, QA).
-      ENABLE_MODULES: 'text2vec-ollama,img2vec-neural,generative-ollama'
+#      ENABLE_MODULES: 'text2vec-ollama,img2vec-neural,generative-ollama'
+      ENABLE_MODULES: 'text2vec-ollama,generative-ollama'
       CLUSTER_HOSTNAME: 'node1'
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'false'
       # Enables API key authentication.
@@ -65,12 +66,6 @@ services:
       AUTHENTICATION_APIKEY_ALLOWED_KEYS: 'Search_the_VK'
       # List one or more user identities, separated by commas. Each identity corresponds to a specific key above.
       AUTHENTICATION_APIKEY_USERS: 'admin'
-
-  i2v-neural:
-    image: cr.weaviate.io/semitechnologies/img2vec-keras:resnet50
-    restart: unless-stopped
-    environment:
-      ENABLE_CUDA: '0'
 
   ollama:
     image: ollama/ollama
@@ -85,22 +80,6 @@ services:
       # Script entrypoint.sh will pull the models
       - ./ollama/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
-
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:ollama
-    depends_on:
-      - ollama
-    ports:
-      # external_port:internal_port
-      - "3000:8080"
-    env_file:
-      - .env
-    environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
-    volumes:
-      - "${DEPLOY_DIR:-.}/catsearch/ollama-webui:/app/backend/data"
-    restart: unless-stopped
 
   pg:
     image: "postgres:17"
@@ -122,7 +101,23 @@ services:
     ports:
       # "external_port:internal_port"
       - "5432:5432"
-  
+
+#  open-webui:
+#    image: ghcr.io/open-webui/open-webui:ollama
+#    depends_on:
+#      - ollama
+#    ports:
+#      # external_port:internal_port
+#      - "3000:8080"
+#    env_file:
+#      - .env
+#    environment:
+#      - 'OLLAMA_BASE_URL=http://ollama:11434'
+#      - 'WEBUI_SECRET_KEY='
+#    volumes:
+#      - "${DEPLOY_DIR:-.}/catsearch/ollama-webui:/app/backend/data"
+#    restart: unless-stopped
+
 #  mongo:
 #    image: "mongo:8.0"
 #    restart: unless-stopped
@@ -137,3 +132,10 @@ services:
 #    ports:
 #      # "external_port:internal_port"
 #      - "27017:27017"
+
+#  i2v-neural:
+#    image: cr.weaviate.io/semitechnologies/img2vec-keras:resnet50
+#    restart: unless-stopped
+#    environment:
+#      ENABLE_CUDA: '0'
+
