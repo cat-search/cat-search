@@ -56,7 +56,8 @@ services:
       #   text2vec-ollama:    for text embeddings using the Ollama LLM backend.
       #   img2vec-neural:     for image embeddings.
       #   generative-ollama:  for generative tasks (e.g., summarization, QA).
-      ENABLE_MODULES: 'text2vec-ollama,img2vec-neural,generative-ollama'
+#      ENABLE_MODULES: 'text2vec-ollama,img2vec-neural,generative-ollama'
+      ENABLE_MODULES: 'text2vec-ollama,generative-ollama'
       CLUSTER_HOSTNAME: 'node1'
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'false'
       # Enables API key authentication.
@@ -65,12 +66,6 @@ services:
       AUTHENTICATION_APIKEY_ALLOWED_KEYS: 'Search_the_VK'
       # List one or more user identities, separated by commas. Each identity corresponds to a specific key above.
       AUTHENTICATION_APIKEY_USERS: 'admin'
-
-  i2v-neural:
-    image: cr.weaviate.io/semitechnologies/img2vec-keras:resnet50
-    restart: unless-stopped
-    environment:
-      ENABLE_CUDA: '0'
 
   ollama:
     image: ollama/ollama
@@ -85,22 +80,14 @@ services:
       # Script entrypoint.sh will pull the models
       - ./ollama/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
-
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:ollama
-    depends_on:
-      - ollama
-    ports:
-      # external_port:internal_port
-      - "3000:8080"
-    env_file:
-      - .env
-    environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
-    volumes:
-      - "${DEPLOY_DIR:-.}/catsearch/ollama-webui:/app/backend/data"
-    restart: unless-stopped
+    # For NVIDIA GPU uncomment settings below
+    #deploy:
+    #  resources:
+    #    reservations:
+    #      devices:
+    #        - driver: nvidia
+    #          count: 1
+    #          capabilities: [gpu]
 
   pg:
     image: "postgres:17"
@@ -111,7 +98,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_DB: catsearch
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: Oue$8AriEOdN
     volumes:
       # external_directory:internal_directory
       # volume for postgresql data
@@ -122,7 +109,7 @@ services:
     ports:
       # "external_port:internal_port"
       - "5432:5432"
-  
+
   tg-bot:
     image: tg-bot
     restart: unless-stopped
@@ -131,7 +118,7 @@ services:
       - app.env
     depends_on:
       - backend
-  
+
 #  mongo:
 #    image: "mongo:8.0"
 #    restart: unless-stopped
