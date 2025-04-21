@@ -51,46 +51,37 @@
 2. Сборка образа cat-spider
 
 ```shell
-# Склонируйте код
-git clone https://github.com/cat-search/cat-spider.git
-
-# Перейдите в корень кода cat-spider
-cd cat-spider
-
-# Соберите докер образ с тегом cat-spider
-docker build -t cat-spider .
-
-# Выход обратно в родительский каталог
-cd ..
+git clone https://github.com/cat-search/cat-spider.git \
+  && cd cat-spider \ 
+  && docker build -t cat-spider . \
+  && cd ..
 ```
 
 3. Сборка образа cat-backend
 
 ```shell
-# Склонируйте код
-git clone https://github.com/cat-search/cat-backend.git
-
-# Перейдите в корень кода cat-backend
-cd cat-backend
-
-# Соберите докер образ с тегом cat-spider
-docker build -t cat-backend .
-
-# Выход обратно в родительский каталог
-cd ..
+git clone https://github.com/cat-search/cat-backend.git \
+  && cd cat-backend \
+  && docker build -t cat-backend . \
+  && cd ..
 ```
 
-4. Запуск всего проекта
+4. борка образа tg-bot
+
+```shell
+git clone  https://github.com/cat-search/tg-bot.git \
+  && cd tg-bot \
+  && docker build -t tg-bot . \
+  && cd ..
+```
+
+5. Запуск всего проекта
 
 ```shell
 # Склонируйте код
 git clone https://github.com/cat-search/cat-search.git
-
-# Перейдите в корень кода cat-search
-cd cat-search
-
-# Запустите проект
-docker compose up -d
+  && cd cat-search \
+  && docker compose up -d
 ```
 
 # Архитектура
