@@ -35,8 +35,8 @@
 1. Сборка образа cat-spider
 
 ```shell
-git clone https://github.com/cat-search/cat-spider.git \
-  && cd cat-spider \ 
+git clone https://github.com/cat-search/cat-spider.git -- \
+  && cd cat-spider \
   && docker build -t cat-spider . \
   && cd ..
 ```
@@ -44,7 +44,7 @@ git clone https://github.com/cat-search/cat-spider.git \
 2. Сборка образа cat-backend
 
 ```shell
-git clone https://github.com/cat-search/cat-backend.git \
+git clone https://github.com/cat-search/cat-backend.git -- \
   && cd cat-backend \
   && docker build -t cat-backend . \
   && cd ..
@@ -53,7 +53,7 @@ git clone https://github.com/cat-search/cat-backend.git \
 3. Cборка образа tg-bot
 
 ```shell
-git clone  https://github.com/cat-search/tg-bot.git \
+git clone  https://github.com/cat-search/tg-bot.git -- \
   && cd tg-bot \
   && docker build -t tg-bot . \
   && cd ..
@@ -63,11 +63,11 @@ git clone  https://github.com/cat-search/tg-bot.git \
 
 - Для запуска бота необходимо в файле app.env прописать переменную BOT_TOKEN с 
   ключом: `BOT_TOKEN=7636890069:AAF2yXCS4MdErl1AOekAuQObrGQeg4vzSk8`
-- В .env можно указать каталог ФС, в который будут сохраняться данные.
+- (Опционально) В .env можно указать каталог ФС, в который будут сохраняться данные.
   По-умолчанию данные будут сохраняться в каталог `./catsearch`.
 
 ```shell
-git clone https://github.com/cat-search/cat-search.git
+git clone https://github.com/cat-search/cat-search.git -- \
   && cd cat-search \
   && docker compose up -d
 ```
