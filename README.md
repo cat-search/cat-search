@@ -1,20 +1,19 @@
 # cat-search
 
-Черновик решения задачи VK HR Tek Информационный поиск.
+Решение задачи VK HR Tek Информационный поиск.
 
 # Описание решения
 
 Мы решили реализовать RAG со следующими компонентами:
 - Векторная БД: weaviate.
-- LLM: Ollama сервер с моделью 7b-instruct-v0.3-q4_0.
-- Бэкенд FastAPI.
-- БД Postgresql для хранения информации о запросах, спайдера и т. п.
-- Фронтенд Web UI: еще не реализован.
-- Спайдер - загрузчик и парсер данных из Postgresql и файлового хранилища.
-- Реранкер: под вопросом.
-- Обратный индекс: под вопросом.
+- Ollama сервер для запуска моделей LLM и эмбеддингов.
+- Бэкенд FastAPI, Langchain.
+- Фронтенд: Telegram bot.
+- Postgresql: БД для хранения информации о запросах.
 
-Решение выложено в виде 3-х репозиториев:
+Все компоненты упакованы в docker. Проект запускается docker compose.
+
+Решение выложено в виде 4-х репозиториев:
 - 1: https://github.com/cat-search/cat-search
 
     Описание и docker-compose.yaml для запуска всего проекта.
@@ -23,32 +22,17 @@
 
     Бэкенд FastAPI.
 
+- 3: https://github.com/cat-search/tg-bot
+
+    Телеграм бот.
+
 - 3: https://github.com/cat-search/cat-spider
 
-    Спайдер: парсер и загрузчик данных из БД Postgresql в векторную БД.     
-
-# Текущее состояние
-
-- Спайдер и загрузка документов: 
-  - Нам удалось распознать все doc и почти все pdf файлы, кроме сканов.
-- Векторная БД на weaviate:
-  - Распознанный текст нарезаем на чанки и грузим в векторную БД.
-  - Получаем выдачу по запросу.
-- LLM
-  - Запускаем на ollama.
-  - К ней же обращается weaviate
-- Бэкенд FastAPI
-  - Работает swagger, пока отдает только выдачу от векторной БД
-  - Вместо фронта пока swagger. 
-- Упаковка в docker
-  - Только начали
+    Спайдер: загрузчик данных в векторную БД.     
 
 # Установка
 
-1. В .env можно указать каталог ФС, в который будут сохраняться данные.
-По-умолчанию данные будут сохраняться в каталог `./catsearch`.
-
-2. Сборка образа cat-spider
+1. Сборка образа cat-spider
 
 ```shell
 git clone https://github.com/cat-search/cat-spider.git \
@@ -57,7 +41,7 @@ git clone https://github.com/cat-search/cat-spider.git \
   && cd ..
 ```
 
-3. Сборка образа cat-backend
+2. Сборка образа cat-backend
 
 ```shell
 git clone https://github.com/cat-search/cat-backend.git \
@@ -66,7 +50,7 @@ git clone https://github.com/cat-search/cat-backend.git \
   && cd ..
 ```
 
-4. борка образа tg-bot
+3. Cборка образа tg-bot
 
 ```shell
 git clone  https://github.com/cat-search/tg-bot.git \
@@ -75,14 +59,23 @@ git clone  https://github.com/cat-search/tg-bot.git \
   && cd ..
 ```
 
-5. Запуск всего проекта
+4. Запуск всего проекта
+
+В .env можно указать каталог ФС, в который будут сохраняться данные.
+По-умолчанию данные будут сохраняться в каталог `./catsearch`. 
 
 ```shell
-# Склонируйте код
 git clone https://github.com/cat-search/cat-search.git
   && cd cat-search \
   && docker compose up -d
 ```
+
+# Описание запуска
+
+- Запустятся `ollama`, `weaviate`, `pg`. `ollama` будет пуллить модели.
+- `spider` запуститься и будет ожидать готовности `weaviate`, `pg`, `ollama`. Далее начнет загрузку
+  текстовых документов их папки ./files, которая монтируется в контейнер.
+- Запустится `backend`. На нем работает swagger и он будет ожидать запросы от `tg-bot`.
 
 # Архитектура
 
